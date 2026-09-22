@@ -1,0 +1,85 @@
+/vendor/
+.env
+
+# 執行期上傳資料（簽名圖、logo、媒體）——不進版控，但保留目錄內的安全設定檔
+/uploads/*
+!/uploads/.htaccess
+!/uploads/.gitkeep
+/uploads_*/
+
+/storage/logs/*.log
+/storage/cache/*
+/storage/sessions/*
+/storage/install.lock
+/storage/install.pending
+!storage/.gitkeep
+!storage/logs/.gitkeep
+!storage/cache/.gitkeep
+!storage/sessions/.gitkeep
+
+
+# ============================================
+# Security — added by audit 2026-04-24
+# DO NOT REMOVE without security review.
+# ============================================
+
+# Environment / secrets
+.env
+.env.*
+!.env.example
+!.env.sample
+
+# Keys / certs
+*.pem
+*.key
+!*.php.key
+id_rsa*
+*.ppk
+*.p12
+*.pfx
+
+# Credentials / service accounts
+credentials*.json
+service-account*.json
+secrets*.json
+auth.json
+.npmrc
+.pypirc
+
+# SSH
+.ssh/
+known_hosts
+
+# Local dev / deploy helpers that may hold creds
+deploy.py
+deploy.sh
+deploy.local.*
+temp_*.py
+temp_*.sh
+*.local.py
+*.local.js
+*.local.json
+*.local.php
+.env-deploy
+/deploy.env
+
+# WordPress-specific
+wp-config.php
+wp-config-local.php
+!wp-config-sample.php
+
+# Claude / tooling artifacts
+.claude/
+.review_tmp/
+tmpclaude-*
+
+# Local backups
+*.backup
+*.bak
+*.orig
+
+# mPDF 的暫存目錄（PDF 產生時建立）
+/storage/mpdf/
+
+# 發行包建置產物（release/build.sh）
+/release/out/

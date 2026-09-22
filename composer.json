@@ -1,0 +1,26 @@
+{
+    "name": "yangsheep/ys-crm",
+    "description": "YANGSHEEP DESIGN 內部營運 CRM（獨立 PHP 應用，Zero Trust）",
+    "type": "project",
+    "license": "proprietary",
+    "require": {
+        "php": "~8.5.0",
+        "ext-pdo": "*",
+        "ext-mbstring": "*",
+        "ext-openssl": "*",
+        "ext-json": "*",
+        "mpdf/mpdf": "^8.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "YangSheep\\CRM\\": "src/"
+        }
+    },
+    "config": {
+        "optimize-autoloader": true,
+        "sort-packages": true
+    },
+    "extra": {
+        "runtime-note": "PHP 8.5 is the sole supported runtime. Core uses the built-in autoloader. Quote Print/PDF opens the dedicated print page and the browser dialog; mPDF remains a legacy rendering library, not the public download workflow."
+    }
+}

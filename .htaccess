@@ -1,0 +1,52 @@
+# YS CRM — Apache Rewrite + 安全規則
+# 適用於 Apache 環境。Nginx 不讀本檔：請在站台設定把不存在的路徑導向 index.php
+#（try_files $uri $uri/ /index.php?$query_string;）
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # 阻擋直接存取敏感檔案和目錄
+    RewriteRule ^\.env              - [F,L]
+    RewriteRule ^\.env\.example     - [F,L]
+    RewriteRule ^src/               - [F,L]
+    RewriteRule ^config/            - [F,L]
+    RewriteRule ^views/             - [F,L]
+    RewriteRule ^routes/            - [F,L]
+    RewriteRule ^database/          - [F,L]
+    RewriteRule ^storage/           - [F,L]
+    RewriteRule ^composer\.json     - [F,L]
+    RewriteRule ^README\.md         - [F,L]
+
+    # 允許靜態資源直接存取
+    RewriteCond %{REQUEST_FILENAME} -f
+    RewriteRule \.(css|js|png|jpg|jpeg|gif|svg|ico|woff2?|ttf|eot|webp|mp4)$ - [L]
+
+    # 所有其他請求導向 index.php
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.php [QSA,L]
+</IfModule>
+
+# 阻擋目錄瀏覽
+Options -Indexes
+
+# 阻擋隱藏檔案存取（.env, .htaccess 等）
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+
+# 阻擋「不以點開頭」的機密檔。
+#
+# 【為何需要這一段】上面的 ^\. 只擋隱藏檔，擋不到 deploy.env、credentials.foo.json、
+# dump.sql 這類名字。而且因為這些檔案**存在**，前面的 RewriteCond !-f 不成立，
+# 請求根本不會被導到 index.php —— Apache 會直接把內容當靜態檔送出。
+#
+# ⚠️ Nginx 不讀本檔。nginx 主機請見 docs/GO-LIVE.md「機密檔」一節：
+#    應用層對「靜態檔服務」沒有任何攔截點，唯一可靠解法是不要把這些檔放進 web root。
+#
+# ⚠️ 本清單需與 EnvironmentChecker::scanSecretFiles() 的樣式保持一致。
+#    兩份發散的後果是「安裝頁標記為危險、Apache 卻仍可下載」或反之。
+<FilesMatch "(?i)(\.env$|^\.env\.|\.(pem|key|ppk|p12|pfx|sql|bak|orig|log|ini|sh)$|\.sql\.gz$|^id_rsa|^credentials.*\.json$|^secrets?.*\.json$|^service-account.*\.json$|^auth\.json$)">
+    Require all denied
+</FilesMatch>

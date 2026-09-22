@@ -1,0 +1,157 @@
+/* =============================================================
+ * YS CRM 設計 Token — Spike 風格
+ * 規範文件：docs/design/2026-08-16-ys-crm-admin-design-system.md
+ *
+ * 所有數值皆由 Spike demo 實機量測 computed style 取得，非目測。
+ * 修改前請回 demo 站重新量測（見規範 §0）。
+ *
+ * 主題切換沿用既有機制：<html class="dark">（cookie ys_theme + FOUC 防護）。
+ * ============================================================= */
+
+:root {
+    /* ── 品牌色（light / dark 共用，不隨主題變）────────────── */
+    --ys-primary: #0085db;
+    --ys-primary-hover: #0072bd;
+    --ys-secondary: #46caeb;
+
+    /* 🔴 success 刻意不用 Spike 原版的綠（#4bd08b）：本專案硬性要求全站不使用綠色。
+       改用 Spike 自己的 secondary 青色，仍在其色票內，不破壞設計系統的一致性。
+       修改前請先確認此要求是否仍然成立，勿逕自改回綠色。 */
+    --ys-success: #46caeb;
+    --ys-warning: #f8c076;
+    --ys-danger: #fb977d;
+    --ys-info: #167eb5;
+    --ys-indigo: #8763da;
+
+    --ys-primary-rgb: 0, 133, 219;
+
+    /* ── 淡色底 ─────────────────────────────────────────── */
+    --ys-primary-subtle: rgba(0, 133, 219, 0.1);
+    --ys-secondary-subtle: rgba(70, 202, 235, 0.1);
+    /* 同上：改為青色系的淡底，取代 Spike 原版的淡綠 #dffff3 */
+    --ys-success-subtle: #e1f7fc;
+    --ys-warning-subtle: #fff6ea;
+    --ys-danger-subtle: #ffede9;
+    --ys-info-subtle: #e1f5fa;
+
+    /* ── 語意色的「文字專用」變體 ────────────────────────────
+     * 【為何需要另一組】Spike 的語意色是為深色背景挑的，直接拿來當淺色主題的
+     * 文字色，對比度全部不及格（實測對白底：success 1.93:1、warning 1.64:1、
+     * danger 2.14:1，WCAG AA 一般文字要求 4.5:1）。
+     *
+     * 因此：底色／圖示／邊框用上面的原色，**文字一律用下面這組**。
+     * 深色主題不需要降階（原色對 #111c2d 有 8–10:1），故在 .dark 區塊改回原色。
+     */
+    --ys-success-text: #1d6a80;  /* 對白 6.13:1 */
+    --ys-warning-text: #7d5c30;  /* 對白 6.09:1 */
+    --ys-danger-text:  #874835;  /* 對白 6.98:1 */
+    --ys-info-text:    #0f5c85;  /* 對白 7.27:1 */
+    /* #0072bd 對白是 4.62:1 沒錯，但這個變數也用在 --ys-primary-subtle 的淡藍底上
+       （rgba(0,133,219,.1) 疊白＝rgb(230,243,251)），那裡實測只有 4.49:1 —— 差 0.01。
+       門檻要對**最亮的實際底色**算，不是對純白。 */
+    --ys-primary-text: #006bb2;  /* 對白 5.61:1、對淡藍底 4.96:1 */
+
+    /* ── 中性色（light）──────────────────────────────────── */
+    --ys-bg: #ffffff;
+    --ys-surface: #ffffff;
+    --ys-surface-alt: #f5f8fb;
+    /* 🔴 #707a82 對白底實測只有 4.38:1 —— 差 AA（4.5）一點點，但差一點就是差。
+       側欄「管理選單」分組標題、登出鈕、各種說明文字都用這個值。
+       #5f6870 對白 5.68:1、對 slate-100 底 #e7ecf0 也有 4.77:1。 */
+    --ys-text: #5f6870;
+    --ys-heading: #111c2d;
+    --ys-muted: #5f6870;
+    --ys-border: #e6ecf1;
+    --ys-input-border: #aebcc3;
+
+    /* ── 字型 ───────────────────────────────────────────── */
+    /* Plus Jakarta Sans 不含中文字符，必須串接中文字型（見規範 §2.3）。
+       中文優先使用系統內建，避免額外網路請求拖慢首屏。 */
+    --ys-font-sans: "Plus Jakarta Sans", "PingFang TC", "Microsoft JhengHei",
+                    "Noto Sans TC", -apple-system, BlinkMacSystemFont,
+                    "Segoe UI", Roboto, sans-serif;
+    --ys-font-mono: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+
+    /* ── 字級 ───────────────────────────────────────────── */
+    --ys-fs-body: 0.9rem;      /* 14.4px */
+    --ys-fs-input: 0.875rem;   /* 14px   */
+    --ys-fs-btn: 0.9375rem;    /* 15px   */
+    --ys-fs-nav: 0.9375rem;    /* 15px   */
+    --ys-fs-th: 1rem;          /* 16px   */
+    --ys-fs-card-title: 1.125rem; /* 18px */
+    --ys-fw-body: 500;         /* 全站內文字重 500（非 400）*/
+    --ys-fw-heading: 600;
+
+    /* ── 圓角 ───────────────────────────────────────────── */
+    --ys-radius-sm: 8px;
+    --ys-radius: 12px;
+    --ys-radius-lg: 18px;      /* 卡片：Spike 招牌值 */
+    --ys-radius-xl: 24px;
+    --ys-radius-pill: 50rem;
+
+    /* ── 陰影（全站只有兩階，勿新增）──────────────────────── */
+    --ys-shadow: 0 2px 6px 0 rgba(37, 83, 185, 0.1);
+    --ys-shadow-lg: 0 8px 24px 0 rgba(37, 83, 185, 0.16);
+
+    /* ── 間距與尺寸 ─────────────────────────────────────── */
+    --ys-space-card: 24px;
+    --ys-space-cell: 12px;
+    --ys-sidebar-w: 270px;
+    --ys-header-h: 70px;
+
+    /* ── 動效 ───────────────────────────────────────────── */
+    --ys-transition: 0.25s ease-in-out;
+    --ys-transition-nav: 0.4s ease-in-out;
+
+    /* ── 內容區左右留白（規範 §4：全寬 + 5~10vw）────────────
+       Spike 原版是 max-width:1300px 置中，本專案改全寬。 */
+    --ys-content-gutter: clamp(5vw, 6vw, 10vw);
+}
+
+/* ── 深色主題 ──────────────────────────────────────────────
+ * 注意：Spike 的 dark 主題中 bg 與 surface 同值，靠陰影與極淡邊框分層，
+ * 不是「深底 + 淺卡片」。勿自行把卡片改成較淺的灰（見規範 §2.2）。 */
+.dark {
+    --ys-bg: #111c2d;
+    --ys-surface: #111c2d;
+    --ys-surface-alt: #232b37;
+    /* 🔴 對比要對「最亮的實際底色」算，不是只對頁面主底。
+       #7c8fac 對 --ys-bg (#111c2d) 是 5.20:1（過），但對 --ys-surface-alt
+       (#232b37，表頭與次要區塊的底) 只有 4.33:1 —— 而 app.css 把舊色系的
+       text-gray-700/600/500 全部映射到這個變數，所以 boards / cards 的表頭
+       就落在那個 4.33 上。
+       #8496b1：對主底 5.68:1、對 surface-alt 4.74:1，兩個底都過 AA。 */
+    --ys-text: #8496b1;
+    --ys-heading: #eaeff4;
+    /* 🔴 深色主題同樣不能用 #707a82：對 #111c2d 實測只有 3.91:1。
+       #96a1ab 對 #111c2d 有 6.6:1。 */
+    --ys-muted: #96a1ab;
+    --ys-border: rgba(189, 200, 240, 0.2);
+    --ys-input-border: rgba(189, 200, 240, 0.3);
+
+    --ys-success-subtle: #10333d;
+    --ys-warning-subtle: #403937;
+    --ys-danger-subtle: #402739;
+    --ys-info-subtle: #292a50;
+
+    /* 深色主題的文字色 —— 實測值（對深色底 #111c2d ／對各自的 *-subtle badge 底）：
+     *   success #46caeb  8.88:1 ／ 6.98:1（底 #10333d）
+     *   warning #f8c076  ——      ／ 6.88:1（底 #403937）
+     *   danger  #fb977d  ——      ／ 6.27:1（底 #402739）
+     * 這三者用回原色即可，深色介面也保有 Spike 的鮮明語意色。
+     *
+     * 🔴 info 是例外，不可用原色。#167eb5 對 #111c2d 只有 3.81:1、
+     * 對 badge 底 #292a50 更只有 3.04:1 —— 兩者都低於 AA 的 4.5:1。
+     * 原本這段註解一句「原色對比 8–10:1」把四個色包在一起講，
+     * 於是唯一不成立的那個被蓋掉了。改用提亮版本並逐色記錄實測值。 */
+    --ys-success-text: var(--ys-success);
+    --ys-warning-text: var(--ys-warning);
+    --ys-danger-text:  var(--ys-danger);
+    --ys-info-text:    #5ab0e3; /* 對 #111c2d 7.13:1、對 #292a50 5.68:1 */
+    --ys-primary-text: #46a3e8; /* 對 #111c2d 6.1:1 */
+}
+
+/* 行動裝置：5vw 在小螢幕上不足以當安全邊距，改固定值。 */
+@media (max-width: 767.98px) {
+    :root { --ys-content-gutter: 16px; }
+}

@@ -1,0 +1,67 @@
+/* 安裝頁專用樣式 */
+
+.install-card {
+    background: rgba(30, 41, 59, 0.8);
+    border: 1px solid rgba(71, 85, 105, 0.5);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+}
+
+.check-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(71, 85, 105, 0.3);
+}
+
+.check-item:last-child {
+    border-bottom: none;
+}
+
+.check-pass {
+    /* 全站禁綠：通過狀態用青色（#46caeb 對深底 install 版面對比足夠）。 */
+    color: #46caeb;
+}
+
+.check-fail {
+    color: #ef4444;
+}
+
+/* 密碼強度指示器 */
+.strength-bar {
+    height: 4px;
+    border-radius: 2px;
+    background: #334155;
+    overflow: hidden;
+    margin-top: 0.25rem;
+}
+
+.strength-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.3s, background-color 0.3s;
+}
+
+.strength-weak   { width: 25%; background: #ef4444; }
+.strength-fair   { width: 50%; background: #f97316; }
+.strength-good   { width: 75%; background: #eab308; }
+.strength-strong { width: 100%; background: #46caeb; }
+
+/* Migration 進度 */
+.migration-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.375rem 0;
+    font-size: 0.875rem;
+}
+
+.migration-spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #475569;
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+}

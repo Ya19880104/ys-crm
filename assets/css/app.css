@@ -1,0 +1,335 @@
+/* Kanban 管理系統 — 全站基礎樣式 */
+
+/* 自訂 scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+    background: #94a3b8;
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+}
+
+/* Toast 通知動畫 */
+.toast-enter {
+    animation: slideIn 0.3s ease-out;
+}
+.toast-leave {
+    animation: slideOut 0.3s ease-in;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes slideOut {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(100%); opacity: 0; }
+}
+
+/* 載入動畫 */
+.spinner {
+    border: 3px solid #e2e8f0;
+    border-top: 3px solid #3b82f6;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Shared keyboard/touch contract for Portal and public navigation controls. */
+.ys-touch-icon {
+    box-sizing: border-box;
+    inline-size: 44px;
+    block-size: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: manipulation;
+}
+.ys-touch-icon:focus-visible {
+    outline: 2px solid var(--ys-primary-text);
+    outline-offset: 2px;
+}
+
+/* Layouts opt in explicitly so compact data cells and public documents keep
+ * their authored geometry while Portal/auth form controls remain touchable. */
+.ys-control-scope :is(input:not([type="hidden"]):not([type="checkbox"]):not([type="radio"]), select, textarea, button) {
+    min-block-size: 44px;
+}
+
+/* #0072bd (Tailwind blue.600) is only 3.37:1 on #111c2d.  This is limited
+ * to interactive text so form-control accents keep their native semantics. */
+html.dark :is(a, button).text-blue-600:not([class*="dark:text-"]) {
+    color: var(--ys-primary-text);
+}
+
+
+/* =============================================================
+ * YS CRM 深色模式 Bridge（Spike 設計系統）
+ *
+ * 【為何需要這一層】
+ * 後台 97 個 view 沿用 kanban 時期的淺色 utility（bg-white / text-gray-* /
+ * border 等），逐檔補 dark: 變體成本過高（300+ 處）。此 bridge 只在
+ * 「深色模式 + 後台內容區（.ys-admin-content）」內把這些 utility 重新映射到
+ * Spike token，淺色模式完全不受影響。
+ *
+ * 【色值一律用 var(--ys-*)，不得寫死】
+ * 本檔曾因寫死舊深藍色票（#0A1020 等），在換設計系統時整層失效卻無人察覺。
+ * 所有顏色請引用 ys-tokens.css 的變數，維持單一真相來源。
+ *
+ * 【現在還剩幾個 !important，以及為什麼】
+ * Tailwind Play CDN 的 utility 與本層特異性相近，且 JIT 在執行期才注入規則；
+ * 主題「當場切換」時需確保本層勝出，不必重新整理頁面。
+ *
+ * 注意：側欄與頂欄已改由 .ys-sidebar / .ys-header 以變數驅動，
+ * 不再需要在此釘色（原本的 aside.bg-navy-900 / header.bg-white 規則已移除）。
+ * ============================================================= */
+
+/* 面板 / 卡片底色 */
+/* ═══════════════════════════════════════════════════════════
+ * 深色主題 bridge —— 為什麼存在，以及它的兩個規則
+ *
+ * 【背景】後台 97 個 view 是以「只有淺色」的前提寫的：bg-white、text-gray-700、
+ * border、shadow-sm。深色主題是事後補的，做法是在深色時**劫持同一批 utility**，
+ * 而不是逐頁補上 dark: 變體。
+ *
+ * 【原本的兩個問題】
+ *   1. 每條都掛 !important。但這些選擇器本來就有 (0,3,1) 的特異度，
+ *      勝過 Tailwind utility 的 (0,1,0) —— !important 是多餘的，
+ *      而它的代價是**任何欄位都無法自行表示狀態**（例如驗證錯誤的紅框）。
+ *   2. 就算不談 !important，(0,3,1) 也勝過 view 自己寫的
+ *      `dark:bg-surface-card`（`.dark\:bg-x:is(.dark *)` 只有 (0,2,0)）。
+ *      也就是說：**view 已經正確寫了深色變體，仍然會被 bridge 蓋掉**。
+ *      寫對的人得不到獎勵，這是最糟的一種設計。
+ *
+ * 【現在的規則】
+ *   - 不使用 !important（特異度已足夠）
+ *   - 每條 bridge 都排除「自己已宣告對應 dark: 變體」的元素：
+ *       .bg-white:not([class*="dark:bg-"])
+ *     view 寫對了就由 view 決定，沒寫才由 bridge 補。
+ *
+ * 【長期方向】逐頁補上 dark: 變體，然後整層刪掉。在那之前，
+ * **新的 view 請直接寫 dark: 變體**，不要依賴 bridge。
+ * ═══════════════════════════════════════════════════════════ */
+
+html.dark .ys-admin-content .bg-white:not([class*="dark:bg-"]) { background-color: var(--ys-surface); }
+html.dark .ys-admin-content .bg-gray-50:not([class*="dark:bg-"]),
+html.dark .ys-admin-content .bg-slate-50:not([class*="dark:bg-"]) { background-color: var(--ys-surface-alt); }
+html.dark .ys-admin-content .bg-gray-100:not([class*="dark:bg-"]),
+html.dark .ys-admin-content .bg-slate-100:not([class*="dark:bg-"]) { background-color: var(--ys-surface-alt); }
+
+/* 邊框 */
+html.dark .ys-admin-content .border:not([class*="dark:border-"]),
+html.dark .ys-admin-content .border-t:not([class*="dark:border-"]),
+html.dark .ys-admin-content .border-b:not([class*="dark:border-"]),
+html.dark .ys-admin-content .border-l:not([class*="dark:border-"]),
+html.dark .ys-admin-content .border-r:not([class*="dark:border-"]) {
+    border-color: var(--ys-border);
+}
+html.dark .ys-admin-content .divide-y > :not([hidden]) ~ :not([hidden]):not([class*="dark:divide-"]) {
+    border-color: var(--ys-border);
+}
+
+/* 文字色階 */
+html.dark .ys-admin-content .text-gray-900:not([class*="dark:text-"]),
+html.dark .ys-admin-content .text-gray-800:not([class*="dark:text-"]) { color: var(--ys-heading); }
+html.dark .ys-admin-content .text-gray-700:not([class*="dark:text-"]) { color: var(--ys-text); }
+html.dark .ys-admin-content .text-gray-600:not([class*="dark:text-"]),
+html.dark .ys-admin-content .text-gray-500:not([class*="dark:text-"]) { color: var(--ys-text); }
+html.dark .ys-admin-content .text-gray-400:not([class*="dark:text-"]) { color: var(--ys-muted); }
+
+/* hover 列 / 區塊 */
+html.dark .ys-admin-content .hover\:bg-gray-50:hover:not([class*="dark:bg-"]),
+html.dark .ys-admin-content .hover\:bg-gray-100:hover:not([class*="dark:bg-"]) {
+    background-color: var(--ys-surface-alt);
+}
+
+/* 表單控制項
+ *
+ * 🔴 這條規則用 !important 統一深色主題的輸入框外觀，代價是**任何欄位都無法自行
+ * 表示錯誤狀態** —— Tailwind 的 border-red-600 之類永遠贏不了它。
+ * 結果就是深色主題下的表單驗證完全沒有視覺回饋（2026-09-02 在帳號欄位發現，
+ * 但影響的是全站每一個後台輸入框）。
+ *
+ * 解法：把「已標記為錯誤」的欄位排除在外。`aria-invalid="true"` 是無障礙標準
+ * 用來表達這件事的屬性，剛好也是我們本來就該設的 —— 用它當選擇器條件，
+ * 視覺狀態與無障礙語意就綁在一起，不會各說各話。 */
+/* 【為何拆成三條】三個屬性各自要排除不同的宣告：寫了 `dark:bg-*` 的欄位
+ * 應該由 view 決定背景，但它的邊框仍可交給 bridge。合成一條就只能一起讓，
+ * 或一起不讓。
+
+ * 【為何不再需要 !important】這組選擇器含六個 :not([type=...])，特異度約 (0,8,2)，
+ * 遠勝 Tailwind utility 的 (0,1,0) 與 dark: 變體的 (0,2,0)。
+ * !important 從來就是多餘的 —— 它唯一的效果是讓欄位再也無法自行表示狀態。 */
+
+/* 背景 */
+html.dark .ys-admin-content input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="submit"]):not([type="button"]):not([aria-invalid="true"]):not([class*="dark:bg-"]),
+html.dark .ys-admin-content textarea:not([aria-invalid="true"]):not([class*="dark:bg-"]),
+html.dark .ys-admin-content select:not([aria-invalid="true"]):not([class*="dark:bg-"]) {
+    background-color: transparent;
+}
+
+/* 邊框 */
+html.dark .ys-admin-content input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="submit"]):not([type="button"]):not([aria-invalid="true"]):not([class*="dark:border-"]),
+html.dark .ys-admin-content textarea:not([aria-invalid="true"]):not([class*="dark:border-"]),
+html.dark .ys-admin-content select:not([aria-invalid="true"]):not([class*="dark:border-"]) {
+    border-color: var(--ys-input-border);
+}
+
+/* 文字色 */
+html.dark .ys-admin-content input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="submit"]):not([type="button"]):not([aria-invalid="true"]):not([class*="dark:text-"]),
+html.dark .ys-admin-content textarea:not([aria-invalid="true"]):not([class*="dark:text-"]),
+html.dark .ys-admin-content select:not([aria-invalid="true"]):not([class*="dark:text-"]) {
+    color: var(--ys-heading);
+}
+
+html.dark .ys-admin-content input:not([class*="dark:placeholder"])::placeholder,
+html.dark .ys-admin-content textarea:not([class*="dark:placeholder"])::placeholder {
+    color: var(--ys-muted);
+}
+
+/* 狀態 badge：改用 Spike 的語意色與 subtle 底 */
+html.dark .ys-admin-content .bg-green-100:not([class*="dark:bg-"]),
+html.dark .ys-admin-content .bg-emerald-100:not([class*="dark:bg-"]) { background-color: var(--ys-success-subtle); }
+html.dark .ys-admin-content .text-green-800:not([class*="dark:text-"]),
+html.dark .ys-admin-content .text-green-700:not([class*="dark:text-"]),
+html.dark .ys-admin-content .text-emerald-800:not([class*="dark:text-"]) { color: var(--ys-success); }
+
+html.dark .ys-admin-content .bg-blue-100:not([class*="dark:bg-"]) { background-color: var(--ys-primary-subtle); }
+html.dark .ys-admin-content .text-blue-800:not([class*="dark:text-"]),
+html.dark .ys-admin-content .text-blue-700:not([class*="dark:text-"]) { color: var(--ys-primary); }
+
+html.dark .ys-admin-content .bg-red-100:not([class*="dark:bg-"]) { background-color: var(--ys-danger-subtle); }
+html.dark .ys-admin-content .text-red-800:not([class*="dark:text-"]),
+html.dark .ys-admin-content .text-red-700:not([class*="dark:text-"]) { color: var(--ys-danger); }
+
+html.dark .ys-admin-content .bg-amber-100:not([class*="dark:bg-"]),
+html.dark .ys-admin-content .bg-yellow-100:not([class*="dark:bg-"]) { background-color: var(--ys-warning-subtle); }
+html.dark .ys-admin-content .text-amber-800:not([class*="dark:text-"]),
+html.dark .ys-admin-content .text-yellow-800:not([class*="dark:text-"]) { color: var(--ys-warning); }
+
+/* 陰影：深色底沿用同一組 token（Spike 深淺主題共用陰影，靠底色差異分層） */
+html.dark .ys-admin-content .shadow-sm:not([class*="dark:shadow-"]),
+html.dark .ys-admin-content .shadow { box-shadow: var(--ys-shadow); }
+html.dark .ys-admin-content .shadow-md:not([class*="dark:shadow-"]),
+html.dark .ys-admin-content .shadow-lg:not([class*="dark:shadow-"]) { box-shadow: var(--ys-shadow-lg); }
+
+/* ═══════════════════════════════════════════════════════════
+ * 表單錯誤狀態 —— 本檔**唯一**保留 !important 的地方（共兩條）
+ *
+ * 【為何這裡的 !important 是正當的】bridge 的表單規則已經用
+ * `:not([aria-invalid="true"])` 把錯誤欄位排除在外，所以衝突不在那裡；
+ * 真正會蓋掉紅框的是通用的 `.border` bridge —— 它有 (0,3,1)，
+ * 而這裡只有 (0,2,2)。
+ *
+ * 「錯誤狀態必須永遠看得見」正是 !important 存在的理由：它不是整批套色，
+ * 而是一條有意識的、最後才生效的安全規則。整理 !important 的目標從來不是
+ * 「數字歸零」，而是把它限制在真正需要「無論如何都要贏」的地方。
+ *
+ * 🔴 【為何需要單獨處理】通用的 border bridge 會蓋掉紅框：
+ *      html.dark .ys-admin-content .border:not([class*="dark:border-"]) { border-color: var(--ys-border) }
+ *    只要欄位帶著 Tailwind 的 `border` class（後台幾乎每個都有），
+ *    `border-red-600` 這類錯誤色永遠贏不了 —— 深色主題下的表單驗證
+ *    完全沒有視覺回饋，而且不會有人發現，因為訊息文字還是會變色。
+ *
+ *    這裡用 `[aria-invalid="true"]` 當條件：那本來就是無障礙標準表達
+ *    「這個欄位有錯」的屬性，讓視覺狀態與語意綁在同一個來源，
+ *    不會出現「螢幕閱讀器說有錯、畫面看不出來」的分歧。
+ * ═══════════════════════════════════════════════════════════ */
+html .ys-admin-content input[aria-invalid="true"],
+html .ys-admin-content textarea[aria-invalid="true"],
+html .ys-admin-content select[aria-invalid="true"] {
+    border-color: var(--ys-danger) !important;
+}
+html.dark .ys-admin-content input[aria-invalid="true"],
+html.dark .ys-admin-content textarea[aria-invalid="true"],
+html.dark .ys-admin-content select[aria-invalid="true"] {
+    border-color: var(--ys-danger) !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+ * 後台列印
+ *
+ * 🔴 【為何非做不可】後台原本**完全沒有任何列印樣式**。在任一頁按 Ctrl+P，
+ * 送印的是整套介面：側邊選單、標題列、按鈕、篩選表單，全部原樣印出來。
+ * 深色主題下更糟 —— 瀏覽器預設不印背景色，於是深底變白底，
+ * 而文字仍是為深底設計的淺色，結果是**白紙印白字**。
+ *
+ * 使用者回報「報價單列印沒有轉為直式」極可能就是這個：從後台按列印，
+ * 而不是從公開報價單頁（`/q/{token}` 有自己完整的 A4 直式列印樣式）。
+ *
+ * 這裡的目標不是把每一頁都做成精美文件，而是「按下列印會得到一份
+ * 讀得懂的東西」：直式 A4、白底黑字、去掉只有螢幕上才有意義的元素。
+ * 需要正式排版的文件（報價單）仍請走公開頁。
+ * ═══════════════════════════════════════════════════════════ */
+@media print {
+    @page {
+        size: A4 portrait;
+        margin: 14mm;
+    }
+
+    /* 強制回到淺色。瀏覽器預設不印背景，若沿用深色主題的文字色會變成白紙白字。 */
+    html.dark .ys-admin-content,
+    html.dark body,
+    body {
+        background: #fff !important;
+        color: #1f2933 !important;
+    }
+    html.dark .ys-admin-content *:not(svg):not(path) {
+        color: #1f2933 !important;
+        background-color: transparent !important;
+        border-color: #cbd5e1 !important;
+        box-shadow: none !important;
+    }
+
+    /* 只有螢幕上才有意義的東西 */
+    .ys-sidebar,
+    .ys-header,
+    .ys-flash,
+    .no-print,
+    button,
+    [type="button"],
+    [type="submit"],
+    form.ys-filter,
+    nav {
+        display: none !important;
+    }
+
+    /* 內容區展開到整頁 */
+    main,
+    .ys-admin-content {
+        overflow: visible !important;
+        width: 100% !important;
+        max-width: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* 卡片不要被切在跨頁處 */
+    .rounded-xl,
+    table,
+    tr {
+        break-inside: avoid;
+        page-break-inside: avoid;
+    }
+
+    /* 表格印出來要有框線才讀得懂（螢幕上靠底色分隔，紙上沒有底色） */
+    table { width: 100% !important; border-collapse: collapse !important; }
+    th, td { border: 1px solid #cbd5e1 !important; padding: 4px 6px !important; }
+
+    /* 連結印出網址沒有意義（後台連結都是相對路徑） */
+    a[href]::after { content: none !important; }
+}

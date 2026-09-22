@@ -1,0 +1,638 @@
+/* =============================================================
+ * YS CRM 元件層 — Spike 風格
+ * 規範：docs/design/2026-08-16-ys-crm-admin-design-system.md
+ *
+ * 本檔只消費 ys-tokens.css 的變數，不寫死顏色。
+ * 載入順序：ys-tokens.css → Tailwind CDN → 本檔（需覆寫部分 utility 預設）
+ * ============================================================= */
+
+/* ─────────────────────────────────────────────────────────────
+ * 1. 基礎
+ * ───────────────────────────────────────────────────────────── */
+
+body {
+    font-family: var(--ys-font-sans);
+    font-size: var(--ys-fs-body);
+    font-weight: var(--ys-fw-body);
+    line-height: 1.5;
+    color: var(--ys-text);
+    background-color: var(--ys-bg);
+    -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    color: var(--ys-heading);
+    font-weight: var(--ys-fw-heading);
+}
+
+/* 自訂捲軸（沿用既有 6px 細捲軸，改用 token 配色）*/
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+    background: var(--ys-border);
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--ys-muted); }
+
+/* ─────────────────────────────────────────────────────────────
+ * 2. 版面：全寬 + 固定比例留白（規範 §4）
+ * ───────────────────────────────────────────────────────────── */
+
+.ys-content {
+    width: 100%;
+    max-width: none;
+    padding-inline: var(--ys-content-gutter);
+    padding-block: var(--ys-space-card);
+}
+
+/* ─────────────────────────────────────────────────────────────
+ * 3. 卡片
+ * ───────────────────────────────────────────────────────────── */
+
+.ys-card {
+    background-color: var(--ys-surface);
+    border: 0;
+    border-radius: var(--ys-radius-lg);
+    box-shadow: var(--ys-shadow);
+    margin-bottom: var(--ys-space-card);
+}
+
+.ys-card-body { padding: var(--ys-space-card); }
+
+.ys-card-title {
+    font-size: var(--ys-fs-card-title);
+    font-weight: var(--ys-fw-heading);
+    color: var(--ys-heading);
+    margin-bottom: 4px;
+}
+
+/* ─────────────────────────────────────────────────────────────
+ * 4. 按鈕（全藥丸）
+ * ───────────────────────────────────────────────────────────── */
+
+.ys-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 9px 27px;
+    font-size: var(--ys-fs-btn);
+    font-weight: 500;
+    line-height: 1.5;
+    border: 1px solid transparent;
+    border-radius: var(--ys-radius-pill);
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color var(--ys-transition),
+                box-shadow var(--ys-transition),
+                transform var(--ys-transition);
+}
+
+.ys-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--ys-shadow-lg);
+}
+
+.ys-btn:active { transform: translateY(0); }
+
+.ys-btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 0.25rem rgba(var(--ys-primary-rgb), 0.25);
+}
+
+.ys-btn-primary {
+    background-color: var(--ys-primary);
+    border-color: var(--ys-primary);
+    color: #fff;
+}
+.ys-btn-primary:hover { background-color: var(--ys-primary-hover); }
+
+.ys-btn-danger {
+    background-color: var(--ys-danger);
+    border-color: var(--ys-danger);
+    color: #fff;
+}
+
+.ys-btn-light {
+    background-color: var(--ys-primary-subtle);
+    border-color: transparent;
+    color: var(--ys-primary);
+}
+
+.ys-btn-outline {
+    background-color: transparent;
+    border-color: var(--ys-primary);
+    color: var(--ys-primary);
+}
+.ys-btn-outline:hover {
+    background-color: var(--ys-primary);
+    color: #fff;
+}
+
+.ys-btn-sm { padding: 6px 18px; font-size: 0.8125rem; }
+
+/* ──────────────────────────────────────────────────────────
+ * Control height is scoped to .ys-toolbar below. A background utility
+ * identifies visual color, not control type: it can also be pagination,
+ * a chip, or a badge, so generic .bg-blue-* selectors must not set geometry.
+ * ────────────────────────────────────────────────────────── */
+/* ──────────────────────────────────────────────────────────
+ * 鍵盤焦點
+ *
+ * 🔴 實測 71 個可聚焦元素中有 17 個按 Tab 之後**畫面上完全沒有反應** ——
+ * 全部是這個檔案裡自訂的 ys-* 元件（側邊選單、圖示鈕、登出、頭像連結）。
+ * 用 Tailwind class 寫的那些因為帶了 focus:ring 才有。
+ *
+ * 只用 :focus-visible：滑鼠點擊不會出現焦點環，鍵盤操作才會 ——
+ * 這正是它與 :focus 的差別，也是不會影響現有視覺的原因。
+ * ────────────────────────────────────────────────────────── */
+.ys-nav-link:focus-visible,
+.ys-icon-btn:focus-visible,
+.ys-logout-btn:focus-visible,
+.ys-profile-link:focus-visible,
+.ys-tab:focus-visible,
+.ys-seg-item:focus-visible {
+    outline: 2px solid var(--ys-primary);
+    outline-offset: 2px;
+    border-radius: var(--ys-radius-sm, 6px);
+}
+
+/* kanban 時期遺留的「深色次要按鈕」（搜尋 / 篩選，全站 23 處同一 pattern）。
+ * 深黑實心按鈕與 Spike 的柔和語彙衝突，改為淡色主題按鈕。
+ * 以一條規則覆蓋，避免逐檔修改 view。 */
+.ys-admin-content button.bg-slate-800,
+.ys-admin-content a.bg-slate-800 {
+    background-color: var(--ys-primary-subtle) !important;
+    /* 🔴 用 --ys-primary-text 而非 --ys-primary：
+       深色主題下底色是 rgba(0,133,219,.1) 疊在 #111c2d 上（合成後約 rgb(15,39,62)），
+       #0085db 對它實測只有 3.90:1。--ys-primary-text 在兩個主題都已是達標的文字色。 */
+    color: var(--ys-primary-text) !important;
+    border-radius: var(--ys-radius-pill) !important;
+    transition: background-color var(--ys-transition), color var(--ys-transition);
+}
+.ys-admin-content button.bg-slate-800:hover,
+.ys-admin-content a.bg-slate-800:hover {
+    background-color: var(--ys-primary) !important;
+    color: #fff !important;
+}
+
+/* ─────────────────────────────────────────────────────────────
+ * 5. 側欄
+ * ───────────────────────────────────────────────────────────── */
+
+.ys-sidebar {
+    width: var(--ys-sidebar-w);
+    background-color: var(--ys-surface);
+    box-shadow: var(--ys-shadow);
+    border-right: 0;
+}
+
+.ys-sidebar-brand {
+    height: var(--ys-header-h);
+    display: flex;
+    align-items: center;
+    padding-inline: 24px;
+}
+
+.ys-sidebar-nav {
+    padding: 8px 16px 24px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.ys-nav-section {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--ys-muted);
+    text-transform: uppercase;
+    padding: 16px 0 6px;
+}
+
+/* Spike 招牌：從左滑入的右半圓角色塊（規範 §3.3）
+   只動 ::before 的 width，不影響兄弟節點 layout。 */
+.ys-nav-link {
+    position: relative;
+    z-index: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 4px 0;
+    padding: 9px 12px;
+    font-size: var(--ys-fs-nav);
+    font-weight: 500;
+    line-height: 25px;
+    color: var(--ys-heading);
+    text-decoration: none;
+    border-radius: var(--ys-radius-sm);
+    white-space: nowrap;
+    transition: color var(--ys-transition);
+}
+
+.ys-nav-link::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -16px;
+    width: 0;
+    height: 100%;
+    z-index: -1;
+    background-color: var(--ys-primary-subtle);
+    border-radius: 0 var(--ys-radius-xl) var(--ys-radius-xl) 0;
+    transition: width var(--ys-transition-nav);
+}
+
+.ys-nav-link:hover::before,
+.ys-nav-link.is-active::before { width: calc(100% + 16px); }
+
+/* 🔴 用 --ys-primary-text 而非 --ys-primary。實測 #0085db 對白底 3.90:1、
+   對深色底 (#111c2d) 4.38:1 —— 兩個主題都低於 AA 的 4.5:1，而這是每一頁
+   都看得到的元素。--ys-primary-text 在淺色是 5.61:1、深色 6.1:1。
+   （與 .ys-tab.is-active 同一個根因，一起改。） */
+.ys-nav-link:hover,
+.ys-nav-link.is-active { color: var(--ys-primary-text); }
+
+.ys-nav-link.is-active { font-weight: 600; }
+
+.ys-nav-link svg {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+.ys-sidebar-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--ys-border);
+}
+
+.ys-avatar {
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: var(--ys-primary-subtle);
+    color: var(--ys-primary);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* 已上傳的頭像照片：一律裁成圓形並以 cover 填滿，
+   使用者上傳的長寬比五花八門，不裁切會讓側欄排版被撐歪。 */
+.ys-avatar-img {
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: var(--ys-surface-alt);
+}
+
+/* 預設頭像圖案（未上傳時） */
+.ys-avatar-default {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: var(--ys-primary-subtle);
+    color: var(--ys-primary);
+    overflow: hidden;
+}
+
+.ys-avatar-default svg {
+    width: 68%;
+    height: 68%;
+    display: block;
+}
+
+.ys-brand-name { color: var(--ys-heading); }
+
+.ys-logout-btn {
+    color: var(--ys-muted);
+    background: none;
+    border: 0;
+    cursor: pointer;
+    transition: color var(--ys-transition);
+}
+.ys-logout-btn:hover { color: var(--ys-danger); }
+
+/* 圖示按鈕（漢堡選單、關閉、主題切換） */
+.ys-icon-btn {
+    color: var(--ys-muted);
+    background: none;
+    border: 0;
+    cursor: pointer;
+    transition: color var(--ys-transition);
+}
+.ys-icon-btn:hover { color: var(--ys-primary); }
+
+/* ─────────────────────────────────────────────────────────────
+ * 6. 頂欄
+ * ───────────────────────────────────────────────────────────── */
+
+.ys-header {
+    height: var(--ys-header-h);
+    background-color: var(--ys-surface);
+    box-shadow: var(--ys-shadow);
+    border-bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-inline: var(--ys-content-gutter);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+/* ─────────────────────────────────────────────────────────────
+ * 7. 表格
+ * ───────────────────────────────────────────────────────────── */
+
+.ys-table { width: 100%; border-collapse: collapse; }
+
+.ys-table th {
+    padding: var(--ys-space-cell);
+    font-size: var(--ys-fs-th);
+    font-weight: var(--ys-fw-heading);
+    color: var(--ys-heading);
+    text-align: left;
+    text-transform: none;
+    border-bottom: 1px solid var(--ys-border);
+    background-color: transparent;
+}
+
+.ys-table td {
+    padding: var(--ys-space-cell);
+    font-size: var(--ys-fs-body);
+    color: var(--ys-heading);
+    border-bottom: 1px solid var(--ys-border);
+}
+
+.ys-table tbody tr { transition: background-color var(--ys-transition); }
+.ys-table tbody tr:hover { background-color: var(--ys-surface-alt); }
+.ys-table tbody tr:last-child td { border-bottom: 0; }
+
+/* ─────────────────────────────────────────────────────────────
+ * 8. 表單
+ * ───────────────────────────────────────────────────────────── */
+
+.ys-input,
+.ys-select,
+.ys-textarea {
+    width: 100%;
+    padding: 8px 16px;
+    font-size: var(--ys-fs-input);
+    font-family: inherit;
+    color: var(--ys-heading);
+    background-color: transparent;
+    border: 1px solid var(--ys-input-border);
+    border-radius: var(--ys-radius-sm);
+    transition: border-color var(--ys-transition), box-shadow var(--ys-transition);
+}
+
+.ys-input:focus,
+.ys-select:focus,
+.ys-textarea:focus {
+    outline: none;
+    border-color: var(--ys-primary);
+    box-shadow: 0 0 0 0.25rem rgba(var(--ys-primary-rgb), 0.25);
+}
+
+.ys-label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: var(--ys-fs-input);
+    font-weight: 600;
+    color: var(--ys-heading);
+}
+
+/* ─────────────────────────────────────────────────────────────
+ * 9. 狀態徽章
+ * ───────────────────────────────────────────────────────────── */
+
+.ys-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: var(--ys-radius-pill);
+    white-space: nowrap;
+}
+
+.ys-badge-success { background-color: var(--ys-success-subtle); color: var(--ys-success-text); }
+.ys-badge-warning { background-color: var(--ys-warning-subtle); color: var(--ys-warning-text); }
+.ys-badge-danger  { background-color: var(--ys-danger-subtle);  color: var(--ys-danger-text); }
+.ys-badge-info    { background-color: var(--ys-info-subtle);    color: var(--ys-info-text); }
+.ys-badge-primary { background-color: var(--ys-primary-subtle); color: var(--ys-primary-text); }
+.ys-badge-muted   { background-color: var(--ys-surface-alt);    color: var(--ys-muted); }
+
+/* ─────────────────────────────────────────────────────────────
+ * 9b. Flash 訊息
+ * 左右留白與內容區共用同一個 gutter 變數，避免兩者邊界對不齊。
+ * ───────────────────────────────────────────────────────────── */
+
+.ys-flash {
+    margin-inline: var(--ys-content-gutter);
+    margin-top: 16px;
+    padding: 12px 16px;
+    border-radius: var(--ys-radius);
+    font-size: var(--ys-fs-body);
+}
+
+.ys-flash button {
+    background: none;
+    border: 0;
+    cursor: pointer;
+    font-size: 1.25rem;
+    line-height: 1;
+    color: inherit;
+    opacity: 0.6;
+    transition: opacity var(--ys-transition);
+}
+.ys-flash button:hover { opacity: 1; }
+
+.ys-flash-success {
+    background-color: var(--ys-success-subtle);
+    color: var(--ys-success-text);
+}
+
+.ys-flash-error {
+    background-color: var(--ys-danger-subtle);
+    color: var(--ys-danger-text);
+}
+
+/* ─────────────────────────────────────────────────────────────
+ * 10. 頁面切換特效（規範 §5）
+ *
+ * 只動 opacity / transform（GPU 合成），不動 layout 屬性。
+ * 零 JS、零額外請求。
+ * ───────────────────────────────────────────────────────────── */
+
+/* 首選：瀏覽器原生跨文件轉場。不支援的瀏覽器會整段忽略，無副作用。 */
+@view-transition { navigation: auto; }
+
+::view-transition-old(root) { animation: ys-fade-out 0.18s ease both; }
+::view-transition-new(root) { animation: ys-fade-in 0.22s ease both; }
+
+@keyframes ys-fade-out { to { opacity: 0; } }
+@keyframes ys-fade-in { from { opacity: 0; } }
+
+/* 後備：內容區進場。位移僅 8px —— 每次換頁都出現的動畫，幅度大會很快令人厭煩。 */
+.ys-content { animation: ys-enter 0.24s ease-out both; }
+
+@keyframes ys-enter {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: none; }
+}
+
+/* 無障礙：尊重系統的減少動態偏好 */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/* Alpine 尚未初始化前先隱藏，避免頁簽內容全部閃現一次再收合。
+   ⚠️ 沒有這條規則，x-cloak 屬性本身不會做任何事 —— 它只是個選擇器掛鉤。 */
+[x-cloak] { display: none !important; }
+
+/* ═══════════════════════════════════════════════════════════
+ * 工具列與頁簽 —— 統一元件
+ *
+ * 【為什麼需要這一層】本檔早就定義了 .ys-btn / .ys-input / .ys-select 等
+ * 70 條元件樣式，但實測**所有 view 對它們的使用次數是 0** ——
+ * 畫面全部各自手刻 Tailwind utility（單是 `px-N py-2` 就有 283 處）。
+ * 設計系統存在，卻沒有任何一個畫面用它，於是「統一」只存在於檔案裡。
+ *
+ * 造成的具體症狀（2026-09-02 實測）：
+ *   篩選列：select 39px、送出鈕 36px          → 差 3px
+ *   報價單公開連結列：34 / 36 / 38 / 36px     → 同一列四種高度
+ * 根因都一樣：**高度是 padding＋字級＋邊框湊出來的，不是明確指定的**。
+ *   - 字級不同（text-xs vs text-sm）→ 行高不同
+ *   - 有的有 border 有的沒有        → 差 2px
+ * 湊出來的高度一定會漂，因為沒有任何一個地方寫著「它們該一樣高」。
+ *
+ * 【做法】不改 283 處 class 字串（風險過高），改成在容器上宣告一次意圖：
+ * 把 .ys-toolbar 加在那一列，裡面的控制項就統一到同一個高度變數。
+ * 意圖寫在一個地方，之後要調整也只有一個地方。
+ * ═══════════════════════════════════════════════════════════ */
+
+:root {
+    /* 🔴 統一控制項高度 = 40px。
+       實測全站原本有兩套標準在打架：工具列 38px，而表單頁的 51 個輸入框與
+       9 個次要按鈕都是 py-2.5（40px）。同一頁的「取消」與「建立」放在 flex
+       容器裡還會互相 stretch —— 主要按鈕的高度其實是被旁邊那顆決定的。
+       取 40px 而非 38px：那是多數控制項已經在的位置（要動的像素最少），
+       也是比較舒服的點擊目標。 */
+    --ys-control-h: 40px;      /* 表單控制項與按鈕的共同高度 */
+    --ys-control-h-sm: 32px;
+}
+
+/* 工具列：篩選列、動作列、連結列 —— 裡面所有可點的東西同高。
+ *
+ * ⚠️ 刻意**不設 display/flex/gap**：這些列在各 view 已有自己的排版
+ *（有的 items-end 讓標籤在上、有的 items-center），這個 class 若一併接管
+ * 版面就會弄壞既有畫面。它只宣告一件事：「這一列裡的控制項要一樣高」。
+ * 加上去是純粹的加法，不會動到任何既有的排版決定。 */
+
+.ys-toolbar :is(input, select, textarea, button, a):not(.ys-toolbar-free) {
+    height: var(--ys-control-h);
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    line-height: 1;
+}
+
+/* 勾選類與檔案欄位不適用固定高度 */
+.ys-toolbar :is(input[type="checkbox"], input[type="radio"], input[type="file"]) {
+    height: auto;
+    display: inline-block;
+}
+
+/* textarea 例外：多行本來就該長高 */
+.ys-toolbar textarea { height: auto; display: block; }
+
+/* 有標籤的欄位：標籤 + 控制項是一個直向群組，不套用工具列的同高規則 */
+.ys-toolbar .ys-field-group { display: flex; flex-direction: column; gap: 4px; }
+.ys-toolbar .ys-field-group > label { line-height: 1.4; }
+
+/* ── 頁簽（底線式）──
+ * 用於「同一頁的不同檢視」，每個檢視各有自己的篩選與分頁。
+ * 全站原本有兩套寫法：底線式 4 個檔案、藥丸式 1 個（通知記錄）。
+ * 統一為底線式 —— 它與「切換檢視」的語意相符，也是多數。 */
+.ys-tabs {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    border-bottom: 1px solid var(--ys-border);
+    margin-bottom: 20px;
+}
+.ys-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 16px;
+    margin-bottom: -1px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.4;
+    color: var(--ys-muted);
+    text-decoration: none;
+    border-bottom: 2px solid transparent;
+    transition: color var(--ys-transition), border-color var(--ys-transition);
+}
+.ys-tab:hover { color: var(--ys-heading); }
+.ys-tab.is-active {
+    /* 🔴 文字用 --ys-primary-text 而不是 --ys-primary：後者對白底只有 3.90:1，
+       低於 WCAG AA 的 4.5:1。底線是裝飾（非文字），維持品牌原色即可。 */
+    color: var(--ys-primary-text);
+    border-bottom-color: var(--ys-primary);
+}
+/* 頁簽右側的附註（例如「共 N 筆」）推到最右 */
+.ys-tabs-aside { margin-left: auto; font-size: 14px; color: var(--ys-muted); }
+
+/* 頁簽列外面還包了一層（例如稽核紀錄把篩選放在同一列的右側）時，
+   底線要畫在外層才不會只有頁簽那一段有線。 */
+.ys-tabs-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    border-bottom: 1px solid var(--ys-border);
+    margin-bottom: 20px;
+}
+.ys-tabs-wrap .ys-tabs { border-bottom: 0; margin-bottom: 0; }
+
+/* ── 分段控制（藥丸式）──
+ * 與頁簽是**不同的東西**：它切換的是同一份清單的篩選值（全部／個人／公司），
+ * 不是切換檢視。刻意保留不同外觀，讓兩者一眼可分。 */
+.ys-seg {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px;
+    gap: 2px;
+    background-color: var(--ys-surface-alt);
+    border-radius: var(--ys-radius-pill);
+}
+.ys-seg-item {
+    display: inline-flex;
+    align-items: center;
+    height: var(--ys-control-h-sm);
+    padding: 0 16px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1;
+    color: var(--ys-muted);
+    text-decoration: none;
+    border-radius: var(--ys-radius-pill);
+    transition: background-color var(--ys-transition), color var(--ys-transition);
+}
+.ys-seg-item:hover { color: var(--ys-heading); }
+.ys-seg-item.is-active {
+    background-color: var(--ys-primary);
+    color: #fff;
+}

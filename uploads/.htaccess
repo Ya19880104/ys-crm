@@ -1,0 +1,9 @@
+# YS CRM upload policy; canonical source: config/uploads-apache.htaccess
+# Deny scripts, hidden files and directory listing. Requires Apache 2.4 AllowOverride support.
+<FilesMatch "(?i)\.(php[0-9]*|phtml|pht|phar|cgi|pl|py|sh|asp|aspx|jsp)$">
+    Require all denied
+</FilesMatch>
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+Options -Indexes

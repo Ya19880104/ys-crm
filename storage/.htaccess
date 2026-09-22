@@ -1,0 +1,8 @@
+# 機密目錄保護（Apache 2.4 後備）
+#
+# storage/ 內含 sessions、logs、cache、install.lock 等敏感資料，
+# 絕不應透過 HTTP 直接存取。此檔為 Apache 後備防線。
+#
+# 注意：Nginx 主機（如 dev-crm）不讀 .htaccess，須於 vhost 另加：
+#   location ~ ^/(storage|config|src|routes|views|database)/ { deny all; }
+Require all denied
